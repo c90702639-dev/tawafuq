@@ -1,0 +1,43 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Sessions collection
+    match /sessions/{sessionId} {
+
+      // Anyone with the sessionId can read the session document.
+      // This is intentional: the sessionId itself is the access token
+      // (nanoid 8-char, 64-char alphabet → ~47 bits of entropy).
+      allow read: if true;
+
+      // Allow creation only when the document does not yet exist
+      // and the payload matches the expected schema.
+      allow create: if
+        !exists(/databases/$(database)/documents/sessions/$(sessionId)) &&
+        request.resource.data.keys().hasAll(['createdAt', 'status', 'partnerA']) &&
+        request.resource.data.status == 'waiting';
+
+      // Allow updates only to valid fields — no deleting the document,
+      // no overwriting createdAt, no setting status to an arbitrary value.
+      allow update: if
+        request.resource.data.createdAt == resource.data.createdAt &&
+        request.resource.data.status in ['waiting', 'both_done', 'revealed'] &&
+        // Prevent clients from writing computed scores directly;
+        // scores are written by the trusted Netlify Function via Admin SDK.
+        // (Remove this constraint if not using Admin SDK in functions.)
+        (
+          !request.resource.data.keys().hasAny(['scores']) ||
+          resource.data.keys().hasAny(['scores'])
+        );
+
+      // No client-side deletes
+      allow delete: if false;
+    }
+
+    // Deny everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

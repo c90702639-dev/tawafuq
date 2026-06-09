@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700&family=DM+Sans:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Base ──────────────────────────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    direction: rtl;
+    lang: ar;
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-brand-cream text-brand-ink font-arabic antialiased;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  /* Focus ring — visible only for keyboard navigation */
+  :focus-visible {
+    outline: 2px solid theme('colors.brand.rose');
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-brand-cream;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-brand-sand rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-brand-rose-light;
+  }
+
+  /* Arabic numerals reset — use Eastern Arabic where needed via JS */
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+  }
+
+  /* RTL-aware text selection */
+  ::selection {
+    @apply bg-brand-rose-light text-brand-ink;
+  }
+}
+
+/* ─── Components ─────────────────────────────────────────────────────────────── */
+@layer components {
+  /* Hide scrollbar but keep scrollable */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Fluid type scale for Arabic headings */
+  .text-display-ar {
+    font-size: clamp(2.5rem, 8vw, 3.5rem);
+    line-height: 1.15;
+  }
+
+  /* Card hover lift */
+  .card-interactive {
+    @apply transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0;
+  }
+}
+
+/* ─── RTL overrides ──────────────────────────────────────────────────────────── */
+@layer utilities {
+  /* Ensure Tailwind `space-x-*` is mirrored in RTL contexts */
+  [dir="rtl"] .space-x-reverse > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 1;
+  }
+}
